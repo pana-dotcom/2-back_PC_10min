@@ -21,11 +21,6 @@ body {
     line-height: 1;
 }
 
-button {
-    font-size: 20px;
-    padding: 10px 20px;
-    margin: 10px;
-}
 </style>
 </head>
 
@@ -36,9 +31,9 @@ button {
 <button id="startBtn">スタート</button>
 
 <div id="game" style="display:none;">
-    <div id="timer">残り：300秒</div>
+    <div id="timer">残り：6000秒</div>
     <div id="letter">✖</div>
-    <button onclick="response()">一致！</button>
+    <p>2つ前の文字と一致時はEnterキーを押す</p>
 </div>
 
 <script>
@@ -49,11 +44,14 @@ let responded = false;
 
 let baseLetters = ["B","F","K","H","M","Q","R","X"];
 
-let timeLimit = 300;
+let timeLimit = 6000;
 let timeLeft = timeLimit;
 let gameTimer;
 
 let isRunning = false;
+
+// ✅ Enter連打防止
+let keyLocked = false;
 
 let letterDuration = 500;
 let fixationDuration = 2000;
@@ -78,14 +76,7 @@ function startGame() {
     updateTimer();
 
     gameTimer = setInterval(countDown, 1000);
-
-    // ✅ 最初に×を2000ms表示してから開始
-    document.getElementById("letter").innerText = "✖";
-
-    setTimeout(() => {
-        if (!isRunning) return;
-        nextTrial();
-    }, fixationDuration);
+    nextTrial();
 }
 
 function countDown() {
@@ -118,7 +109,6 @@ function nextTrial() {
 
         if (!isRunning) return;
 
-        // 押していない場合のみ評価
         if (!responded) {
             evaluate(false);
         }
@@ -133,6 +123,23 @@ function nextTrial() {
     }, letterDuration);
 }
 
+// ✅ Enterキー入力
+document.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter") return;
+
+    if (keyLocked) return;
+    keyLocked = true;
+
+    response();
+});
+
+document.addEventListener("keyup", (e) => {
+    if (e.key === "Enter") {
+        keyLocked = false;
+    }
+});
+
+// ✅ 反応処理
 function response() {
     if (!isRunning) return;
     if (responded) return;
