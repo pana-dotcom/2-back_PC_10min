@@ -119,10 +119,63 @@ function nextTrial() {
 
     responded = false;
 
-    let base =
-        baseLetters[Math.floor(Math.random() * baseLetters.length)];
+    let base;
+    let letter;
 
-    let letter =
+    /*
+    最初の2試行は2-back判定ができないため、
+    8文字からランダムに選択
+    */
+    if (sequence.length < 2) {
+
+        base =
+            baseLetters[
+                Math.floor(Math.random() * baseLetters.length)
+            ];
+
+    } else {
+
+        /*
+        3試行目以降は、各試行で独立に
+        25%の確率でターゲットを設定
+        */
+        let makeTarget = Math.random() < 0.25;
+
+        /*
+        2試行前の文字を取得
+        大文字・小文字は区別しない
+        */
+        let back2 =
+            sequence[sequence.length - 2].toUpperCase();
+
+        if (makeTarget) {
+
+            /*
+            ターゲットの場合は、
+            2試行前と同じ文字を提示
+            */
+            base = back2;
+
+        } else {
+
+            /*
+            非ターゲットの場合は、
+            2試行前と同じ文字を候補から除外
+            */
+            let candidates =
+                baseLetters.filter(item => item !== back2);
+
+            base =
+                candidates[
+                    Math.floor(Math.random() * candidates.length)
+                ];
+        }
+    }
+
+    /*
+    大文字または小文字をランダムに決定
+    */
+    letter =
         Math.random() < 0.5 ? base.toLowerCase() : base;
 
     sequence.push(letter);
